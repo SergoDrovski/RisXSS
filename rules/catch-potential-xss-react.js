@@ -28,45 +28,67 @@ const create = context => {
     options = context.options[0];
   }
   let isVariableTrusted = utils.defaultTrustedCall;
+
   return {
     Program(node) {
       try {
         isVariableTrusted = utils.checkProgramNode(node, isVariableTrusted, options);
       } catch (error) {
-        context.report(node, `${utils.ERROR_MESSAGE} \n ${error.stack}`);
+        context.report({
+          node,
+          message: `${utils.ERROR_MESSAGE} \n ${error.stack}`
+        });
       }
     },
     JSXAttribute(node) {
       try {
         if (isDangerouslySetInnerHTMLAttribute(node)) {
           if (get(node, 'value.type', '') !== 'JSXExpressionContainer') {
-            context.report(node, DANGEROUS_MESSAGE);
+            context.report({
+              node,
+              message: DANGEROUS_MESSAGE
+            });
             return;
           }
           const expression = get(node, 'value.expression', '');
           switch (expression.type) {
             case 'Literal':
-              context.report(node, DANGEROUS_MESSAGE);
+              context.report({
+                node,
+                message: DANGEROUS_MESSAGE
+              });
               break;
             case 'ObjectExpression':
               if (!isInnerHTMLObjectExpressionSafe(expression, isVariableTrusted)) {
-                context.report(node, DANGEROUS_MESSAGE);
+                context.report({
+                  node,
+                  message: DANGEROUS_MESSAGE
+                });
               }
               break;
             case 'CallExpression':
               if (!utils.isVariableSafe(utils.getNameFromExpression(expression), isVariableTrusted, [])) {
-                context.report(node, DANGEROUS_MESSAGE);
+                context.report({
+                  node,
+                  message: DANGEROUS_MESSAGE
+                });
               }
               break;
             default:
               const variableName = `${utils.getNameFromExpression(expression)}.__html`;
               if (!utils.isVariableSafe(variableName, isVariableTrusted, [])) {
-                context.report(node, DANGEROUS_MESSAGE);
+                context.report({
+                  node,
+                  message: DANGEROUS_MESSAGE
+                });
               }
           }
         }
       } catch (error) {
-        context.report(node, `${utils.ERROR_MESSAGE} \n ${error.stack}`);
+        context.report({
+          node,
+          message: `${utils.ERROR_MESSAGE} \n ${error.stack}`
+        });
       }
     },
   };
@@ -75,7 +97,26 @@ const create = context => {
 module.exports = {
   create,
   meta: {
-    type: 'suggestion',
-    fixable: 'code',
+    type: 'problem',
+    docs: {
+      description: 'Detect potential XSS vulnerabilities in React dangerouslySetInnerHTML',
+      category: 'Security',
+      recommended: true
+    },
+    fixable: null,
+    schema: [
+      {
+        type: 'object',
+        properties: {
+          trustedLibraries: {
+            type: 'array',
+            items: {
+              type: 'string'
+            }
+          }
+        },
+        additionalProperties: false
+      }
+    ]
   },
 };

@@ -1,18 +1,24 @@
 {
-  "name": "eslint-plugin-risxss",
-  "version": "2.1.0",
+  "name": "eslint-plugin-risxss-flat",
+  "version": "2.2.0",
   "description": "Various XSS-hunter ESLint rules",
-  "author": {
-    "name": "Guillaume Klaus",
-    "email": "guillaumek@theodo.fr"
-  },
+  "author": "SergoDrovski",
   "scripts": {
     "test": "nyc ava",
     "lint": "xo",
     "integration": "./test/integration/test.js"
   },
+  "keywords": [
+    "eslint",
+    "eslintplugin",
+    "eslint-plugin",
+    "xss",
+    "security",
+    "react",
+    "vue"
+  ],
   "engines": {
-    "node": ">=6"
+    "node": ">=16.0.0"
   },
   "files": [
     "index.js",
@@ -20,10 +26,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/theodo/RisXSS"
+    "url": "https://github.com/SergoDrovski/RisXSS"
   },
   "dependencies": {
-    "import-modules": "^1.1.0",
+    "import-modules": "^2.1.0",
     "lodash.clonedeep": "^4.5.0",
     "lodash.get": "^4.4.2",
     "lodash.union": "^4.6.0"
@@ -41,6 +47,9 @@
     "nyc": "^15.1.0",
     "vue-eslint-parser": "^7.6.0",
     "xo": "^0.36.1"
+  },
+  "peerDependencies": {
+    "eslint": ">=9.0.0"
   },
   "ava": {
     "files": [

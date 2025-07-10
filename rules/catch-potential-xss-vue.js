@@ -55,6 +55,7 @@ const create = context => {
     options = context.options[0];
   }
   let isVariableTrusted = utils.defaultTrustedCall;
+
   // The script visitor is called first. Then the template visitor
   return utils.defineTemplateBodyVisitor(
     context,
@@ -69,17 +70,29 @@ const create = context => {
               if (expression && expression !== null) {
                 const variableName = utils.getNameFromExpression(expression);
                 if (!utils.isVariableSafe(variableName, isVariableTrusted, [])) {
-                  context.report(node, DANGEROUS_MESSAGE);
+                  context.report({
+                    node,
+                    message: DANGEROUS_MESSAGE
+                  });
                 }
               } else {
-                context.report(node, DANGEROUS_MESSAGE);
+                context.report({
+                  node,
+                  message: DANGEROUS_MESSAGE
+                });
               }
             } else {
-              context.report(node, DANGEROUS_MESSAGE);
+              context.report({
+                node,
+                message: DANGEROUS_MESSAGE
+              });
             }
           }
         } catch (error) {
-          context.report(node, `${utils.ERROR_MESSAGE} \n ${error.stack}`);
+          context.report({
+            node,
+            message: `${utils.ERROR_MESSAGE} \n ${error.stack}`
+          });
         }
       },
     },
@@ -90,7 +103,10 @@ const create = context => {
           isVariableTrusted = utils.checkProgramNode(node, isVariableTrusted, options);
           isVariableTrusted = postProcessVariablesForVue(isVariableTrusted);
         } catch (error) {
-          context.report(node, `${utils.ERROR_MESSAGE} \n ${error.stack}`);
+          context.report({
+            node,
+            message: `${utils.ERROR_MESSAGE} \n ${error.stack}`
+          });
         }
       },
       // Check export default with Vue.extend()
@@ -98,7 +114,10 @@ const create = context => {
         try {
           isVariableTrusted = checkVueExportDefaultDeclaration(node, isVariableTrusted);
         } catch (error) {
-          context.report(node, `${utils.ERROR_MESSAGE} \n ${error.stack}`);
+          context.report({
+            node,
+            message: `${utils.ERROR_MESSAGE} \n ${error.stack}`
+          });
         }
       },
     },
@@ -108,7 +127,26 @@ const create = context => {
 module.exports = {
   create,
   meta: {
-    type: 'suggestion',
-    fixable: 'code',
+    type: 'problem',
+    docs: {
+      description: 'Detect potential XSS vulnerabilities in Vue v-html directive',
+      category: 'Security',
+      recommended: true
+    },
+    fixable: null,
+    schema: [
+      {
+        type: 'object',
+        properties: {
+          trustedLibraries: {
+            type: 'array',
+            items: {
+              type: 'string'
+            }
+          }
+        },
+        additionalProperties: false
+      }
+    ]
   },
 };

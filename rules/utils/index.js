@@ -1,4 +1,4 @@
-'use-strict';
+'use strict';
 
 const ERROR_MESSAGE = 'The linter couldn\'t lint the file properly, please open an issue on the RisXSS repo. \n The error is : ';
 

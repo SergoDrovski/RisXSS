@@ -125,6 +125,102 @@ export const DesktopPostCard = ({ post }) => (
 );
 ```
 
+### ESLint 9 (Flat Config)
+
+### `risxss/catch-potential-xss-react`
+
+```javascript
+// eslint.config.js
+import risxss from 'eslint-plugin-risxss-eslint9';
+
+export default [
+  {
+    files: ['**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx'],
+    plugins: {
+      risxss
+    },
+    rules: {
+      'risxss/catch-potential-xss-react': [
+        'error',
+        {
+          trustedLibraries: ['@frontend/core/shared/lib/cleanHTML/safeHTML']
+        }
+      ],
+      'risxss/catch-potential-xss-vue': 'error'
+    },
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true
+        }
+      }
+    }
+  }
+];
+```
+
+### Using a ready-made configuration
+
+```javascript
+// eslint.config.js
+import risxss from 'eslint-plugin-risxss-eslint9';
+
+export default [
+  risxss.configs.recommended,
+  {
+    rules: {
+      'risxss/catch-potential-xss-react': [
+        'error',
+        {
+          trustedLibraries: ['@frontend/core/shared/lib/cleanHTML/safeHTML']
+        }
+      ]
+    }
+  }
+];
+```
+
+### `risxss/catch-potential-xss-vue`
+
+#### Examples of unsafe code
+
+```vue
+<template>
+
+  <div v-html="userInput"></div>
+
+
+  <div v-html="someUntrustedVariable"></div>
+</template>
+```
+
+#### Examples of secure code
+
+```vue
+<template>
+
+  <div v-html="sanitizeHtml(userInput)"></div>
+
+
+  <div v-html="safeHTML(userInput)"></div>
+</template>
+
+<script>
+import DOMPurify from 'dompurify';
+import { safeHTML } from '@frontend/core/shared/lib/cleanHTML/safeHTML';
+
+export default {
+  methods: {
+    sanitizeHtml(html) {
+      return DOMPurify.sanitize(html);
+    },
+    safeHTML
+  }
+}
+</script>
+```
 ## License
 
 MIT
